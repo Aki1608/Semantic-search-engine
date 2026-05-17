@@ -9,14 +9,15 @@ def build_wikipedia_index():
     print("Downloading Wikipedia subset...")
     # Load the English Wikipedia dataset. 
     # We specify split="train[:50000]" to grab the first 50K articles.
-    dataset = load_dataset("wikimedia/wikipedia", "20231101.en", split="train[:50000]")
+    dataset = load_dataset("wikimedia/wikipedia", "20231101.en", split="train", streaming=True)
     
     # We will only embed the beginning (summary) of the text to save memory/time
     print("Extracting article summaries...")
     documents = []
     metadata = []
-    
-    for row in dataset:
+
+    # for row in dataset: # This will download the articles which will take more space.
+    for row in dataset.take(50000): # Use .take(50000) to pull exactly what we need directly from the stream. No download.
         title = row['title']
         text = row['text']
         # Take the first ~500 characters as a summary for embedding
